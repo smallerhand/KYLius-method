@@ -2,11 +2,11 @@ import tensorflow as tf
 tf.reset_default_graph()     #그래프 초기화
 tf.set_random_seed(777) 
 import pandas as pd
-train = pd.read_csv('/home/itwill03/다운로드/train.csv')
+train = pd.read_csv('/home/paperspace/Downloads/trainmnist.csv')
 
 #train세트, validation세트 나누기
 from sklearn.model_selection import train_test_split
-train_set, validate_set = train_test_split(train, test_size = 0.3)
+train_set, validate_set = train_test_split(train, test_size = 0.001)
 trainData = train_set.values[:,1:]
 validateData = validate_set.values[:,1:]
 trainLabel=train_set.values[:,0]
@@ -83,5 +83,5 @@ for epoch in range(training_epochs):
         accuracy = tf.reduce_mean(tf.cast(correct_prediction, tf.float32))
         print('Accuracy:', sess.run(accuracy, feed_dict={
                 X: validateData, Y: validateLabel.reshape(-1, 1), p_keep_conv: 1, p_keep_hidden: 1}))
-        save_path = saver.save(sess, '/home/itwill03/다운로드/opt3/opt3')
+        save_path = saver.save(sess, '/home/paperspace/Downloads/optmnist/optmnist')
 print('Finished!')
