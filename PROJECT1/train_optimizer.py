@@ -2,11 +2,11 @@ import tensorflow as tf
 tf.reset_default_graph()     #그래프 초기화
 tf.set_random_seed(777) 
 import pandas as pd
-train = pd.read_csv('/home/itwill03/다운로드/train.csv')
+train = pd.read_csv('/home/paperspace/Downloads/trainmnist.csv')
 
 #train세트, validation세트 나누기
 from sklearn.model_selection import train_test_split
-train_set, validate_set = train_test_split(train, test_size = 0.3)
+train_set, validate_set = train_test_split(train, test_size = 0.001)
 trainData = train_set.values[:,1:]
 validateData = validate_set.values[:,1:]
 trainLabel=train_set.values[:,0]
@@ -28,21 +28,21 @@ steps_for_validate = 5
 # L1 ImgIn shape=(?, 28, 28, 1)
 W1 = tf.get_variable("W1", shape=[3, 3, 1, 32],initializer=tf.contrib.layers.xavier_initializer())
 L1 = tf.nn.conv2d(X_img, W1, strides=[1, 1, 1, 1], padding='SAME')
-L1 = tf.nn.leaky_relu(L1,0.1)
+L1 = tf.nn.elu(L1)
 L1 = tf.nn.max_pool(L1, ksize=[1, 2, 2, 1],strides=[1, 2, 2, 1], padding='SAME') # l1 shape=(?, 14, 14, 32)
 L1 = tf.nn.dropout(L1, p_keep_conv)
 
 # L2 ImgIn shape=(?, 14, 14, 10)
 W2 = tf.get_variable("W2", shape=[3, 3, 32, 64],initializer=tf.contrib.layers.xavier_initializer())
 L2 = tf.nn.conv2d(L1, W2, strides=[1, 1, 1, 1], padding='SAME')
-L2 = tf.nn.leaky_relu(L2,0.1)
+L2 = tf.nn.elu(L2)
 L2 = tf.nn.max_pool(L2, ksize=[1, 2, 2, 1],strides=[1, 2, 2, 1], padding='SAME') # l2 shape=(?, 7, 7, 64)
 L2 = tf.nn.dropout(L2, p_keep_conv)
 
 # L3 ImgIn shape=(?, 7, 7, 128)
 W3 = tf.get_variable("W3", shape=[3, 3, 64, 128],initializer=tf.contrib.layers.xavier_initializer())
 L3 = tf.nn.conv2d(L2, W3, strides=[1, 1, 1, 1], padding='SAME')
-L3 = tf.nn.leaky_relu(L3,0.1)
+L3 = tf.nn.elu(L3)
 L3 = tf.nn.max_pool(L3, ksize=[1, 2, 2, 1],strides=[1, 2, 2, 1], padding='SAME') # l3 shape=(?, 4, 4, 128)
 L3 = tf.nn.dropout(L3, p_keep_conv)
 L3_flat = tf.reshape(L3, shape=[-1, 128 * 4 * 4])    # reshape to (?, 2048)
@@ -50,7 +50,7 @@ L3_flat = tf.reshape(L3, shape=[-1, 128 * 4 * 4])    # reshape to (?, 2048)
 
 # Final FC 4x4x128 inputs -> 10 outputs
 W4 = tf.get_variable("W4", shape=[128 * 4 * 4, 625],initializer=tf.contrib.layers.xavier_initializer())
-L4 = tf.nn.leaky_relu(tf.matmul(L3_flat, W4),0.1)
+L4 = tf.nn.elu(tf.matmul(L3_flat, W4))
 L4 = tf.nn.dropout(L4, p_keep_hidden)
 W_o = tf.get_variable("W_o", shape=[625,10],initializer=tf.contrib.layers.xavier_initializer())
 b = tf.Variable(tf.random_normal([10]))
@@ -83,5 +83,5 @@ for epoch in range(training_epochs):
         accuracy = tf.reduce_mean(tf.cast(correct_prediction, tf.float32))
         print('Accuracy:', sess.run(accuracy, feed_dict={
                 X: validateData, Y: validateLabel.reshape(-1, 1), p_keep_conv: 1, p_keep_hidden: 1}))
-        save_path = saver.save(sess, '/home/itwill03/다운로드/opt3/opt3')
+        save_path = saver.save(sess, '/home/paperspace/Downloads/optmnist/optmnist')
 print('Finished!')

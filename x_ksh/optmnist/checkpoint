@@ -1,0 +1,2 @@
+model_checkpoint_path: "/home/paperspace/Downloads/optmnist/optmnist"
+all_model_checkpoint_paths: "/home/paperspace/Downloads/optmnist/optmnist"
